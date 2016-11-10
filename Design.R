@@ -1,4 +1,4 @@
-overtData <- read.csv(file = "Traffic_data_orig.csv", header = TRUE,sep = ",")
+overtData <- read.csv(file = "/Users/pouneh/Desktop/ECS_132_PROJECTB/Traffic_data_orig.csv", header = TRUE,sep = ",")
 secretMessage <- "this is a secret message"
 messageLen = as.numeric(nchar(secretMessage))
 
@@ -85,15 +85,26 @@ hist(semiRandomPacketsDelay)
 hist(overtDataDelay)
 
 
+#Q5
+set.seed(1237)
+#m = median(overtDataDelay)
+m = quantile(overtDataDelay, probs = c(0.75) ,names= FALSE)
+min = min(overtDataDelay)
+max = max(overtDataDelay)
 
+semiRandomPacketsDelay = NULL
+semiRandomPackets = NULL
+timeStream = 0
 
-
-
-
-
-
-
-
-
-
-
+for (i in 1:lenBinaryMessage) {
+  if(binaryMessage[i] == 0){
+    timeLapse = runif(1, min, m)
+  }#if bit is 0, delay is 0.25
+  else{
+    timeLapse = runif(1, m, max)
+  }#if bit is 1, delay is 0.75
+      timeStream <- timeStream + timeLapse
+      semiRandomPacketsDelay <- c(semiRandomPacketsDelay,timeLapse)
+  semiRandomPackets <- c(semiRandomPackets,timeStream)
+}#loop to generate packet stream from binary message  
+hist(semiRandomPacketsDelay)
