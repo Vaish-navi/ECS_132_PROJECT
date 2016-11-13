@@ -1,3 +1,4 @@
+setwd("/Users/pouneh/Desktop/STATS_PROJECT")
 overtData <- read.csv(file = "Traffic_data_orig.csv", header = TRUE,sep = ",")
 secretMessage <- "this is a secret message"
 messageLen = as.numeric(nchar(secretMessage))
@@ -96,7 +97,7 @@ max = max(overtDataDelay)
 semiRandomPacketsDelayB = NULL
 semiRandomPacketsB = NULL
 timeStream = 0
-Nexp <- rexp(1000000000000000, m^-1)
+Nexp <- rexp(10000000, m^-1)
 
 for (i in 1:lenBinaryMessage) {
     if(binaryMessage[i] == 0){
@@ -120,56 +121,82 @@ set.seed(1237)
 x <- rnorm(30,mean = 0,sd = 1)
 y <- rnorm(30,mean = 0,sd = 1)
 qqplot(x,y, plot.it = TRUE)
-
+#qqline(x)
+abline(0,1)
 
 #Step 2
 x <- rnorm(100,mean = 0,sd = 1)
 y <- rnorm(100,mean = 0,sd = 1)
 qqplot(x,y, plot.it = TRUE)
+#qqline(x)
+abline(0,1)
 
 x <- rnorm(1000,mean = 0,sd = 1)
 y <- rnorm(1000,mean = 0,sd = 1)
 qqplot(x,y, plot.it = TRUE)
+#qqline(x)
+abline(0,1)
 
 #It is clear that the shape of the qqplot becomes more linear as n increases.
-#This makes sense as the two distributions are exactly the same.
+#The close appearance of the points to the slope=1 line makes sense as the two distributions are exactly the same.
 #The points are dense on the graph between the 1st and 3rd quartiles; they are especially dense around the mean.
 
 #Stem 3
 x <- rnorm(100,mean = 0,sd = 1)
 y <- rnorm(100,mean = 5,sd = 3)
 qqplot(x,y, plot.it = TRUE)
-#The shape of this qqplot also appears to be linear despite the fact that the means and standard deviations are different.
-#Obviously, this shows us that the qqplot only indicates the similarity of two distributions regardless of their individual parameters.
+#qqline(x)
+abline(0,1)
+#abline(5,3)
+
+#The shape of this qqplot also appears to be linear, however the slope is much larger than 1 (which would have indicated perfect correlation).
+#Also, the line itself is shifted up so that at x = 0, y =  5. This shows the relationship between the means: the mean of x is 0, and the mean of y is 5. 
+#Using this information, we can apply similar rational to the difference in slope.  It is caused by the different standard deviations. 
+#The slope for y vs x is 3 in our graph, which also describes the ratio of the standard deviations between the two data sets.
+#Despite the fact that the means and standard deviations are different, and that the numerical values for slope and intercepts change because of it, if we normalize y with respect to x, we see that the it does indeed fall on the slope=1 line
+
 
 #Step 4
 x <- rexp(100,rate = 1)
 y <- rexp(100,rate = 1)
 qqplot(x,y, plot.it = TRUE)
+#qqline(x)
+abline(0,1)
 
 x <- rexp(1000,rate = 1)
 y <- rexp(1000,rate = 1)
-qqplot(x,y, plot.it = TRUE)
+qqplot(x,x, plot.it = TRUE)
+# qqline(x)
+abline(0,1)
 
-#It is clear that the shape of the qqplot becomes more linear as n increases.
-#This makes sense as the two distributions are exactly the same.
+#It is clear that the shape of the qqplot becomes more linear as n increases. 
+#Despite the This makes sense as the two distributions are exactly the same.
 #The points are dense around 1 which makes sense as the mean for an exponencial distribution is (lamda)^-1.
 
 #Step 5
 x <- rnorm(100,mean = 0,sd = 1)
 y <- rexp(100,rate = 1)
 qqplot(x,y, plot.it = TRUE)
+#qqline(x)
+abline(0,1)
 
 x <- rnorm(500,mean = 0,sd = 1)
 y <- rexp(500,rate = 1)
 qqplot(x,y, plot.it = TRUE)
+#qqline(x)
+abline(0,1)
 
 #Step 6
 qqplot(overtDataDelay, covertDataDelay, plot.it = TRUE)
+#qqline(overtDataDelay)
+lines(overtDataDelay, overtDataDelay)
 
 #Step 7
 qqplot(overtDataDelay, semiRandomPacketsDelay, plot.it = TRUE)
+#qqline(overtDataDelay)
+lines(overtDataDelay,overtDataDelay)
 
 #Step 8
 qqplot(overtDataDelay, semiRandomPacketsDelayB, plot.it = TRUE)
+#lines(overtDataDelay,overtDataDelay)
 
