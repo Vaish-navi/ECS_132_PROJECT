@@ -1,4 +1,4 @@
-setwd("/Users/pouneh/Desktop/STATS_PROJECT")
+#setwd("/Users/pouneh/Desktop/STATS_PROJECT")
 overtData <- read.csv(file = "Traffic_data_orig.csv", header = TRUE,sep = ",")
 secretMessage <- "this is a secret message"
 messageLen = as.numeric(nchar(secretMessage))
@@ -198,5 +198,5 @@ lines(overtDataDelay,overtDataDelay)
 
 #Step 8
 qqplot(overtDataDelay, semiRandomPacketsDelayB, plot.it = TRUE)
-#lines(overtDataDelay,overtDataDelay)
+lines(overtDataDelay,overtDataDelay)
 
