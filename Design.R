@@ -1,4 +1,4 @@
-#setwd("/Users/pouneh/Desktop/STATS_PROJECT")
+setwd("/Users/pouneh/Desktop/STATS_PROJECT")
 overtData <- read.csv(file = "Traffic_data_orig.csv", header = TRUE,sep = ",")
 secretMessage <- "this is a secret message"
 messageLen = as.numeric(nchar(secretMessage))
@@ -199,4 +199,103 @@ lines(overtDataDelay,overtDataDelay)
 #Step 8
 qqplot(overtDataDelay, semiRandomPacketsDelayB, plot.it = TRUE)
 lines(overtDataDelay,overtDataDelay)
+
+###################### PART #3 Implementation ##########################
+
+mArr = c(16,32)
+possible = c(0,1)
+
+#Buffer vars
+B = 20
+i = c (2,6,10,14,18)
+CB = 0
+Buffer = NULL
+
+#Sender vars
+nextPacketTime = 0
+
+  m <-scan(what = integer()) #16, 32
+  i <-scan(what = integer()) #2,6,10,14,18
+  
+  binaryMessage = sample(possible, m , replace = TRUE) #Random message of size m
+  
+  generatePacketDelaysE = rexp(m, rate = 1) #Random sequencce of packets with exp distribution 
+  generatePacketDelaysU = runif(m+1, 0, 1) #Random sequencce of packets with unif distribution 
+  
+  timePacketStreamE = 0
+  timeLapse = 0
+  for(index in 1:m){
+    timeLapse = timeLapse + generatePacketDelaysE[index]
+    timePacketStreamE <- c(timePacketStreamE, timeLapse)
+  }
+  
+#Simulation for exp dataset
+  
+  currentTime = 0
+  
+  mE = median(generatePacketDelaysE) #median of exp dataset
+  minE = min(generatePacketDelaysE) #min of exp dataset
+  maxE = max(generatePacketDelaysE) #max of exp dataset
+  
+  semiRandomPacketsDelay = numeric(m+1)
+  semiRandomPackets = numeric(m+1)
+  senderTimeStream = 0
+  senderPackets = NULL
+  senderPacketsDelay = numeric(m+1)
+  Delay = 0
+  start = FALSE
+  sourcePacketIndex = 1
+  senderMessageIndex = 1
+  
+  for(bit in binaryMessage){
+    if(bit == 0){
+      Delay = runif(1,minE,mE)
+    }#if bit is 0
+    else{
+      Delay = runif(1,mE,maxE)
+    }#if bit is 1
+    senderTimeStream = senderTimeStream + Delay
+    senderPackets <- c(senderPackets, senderTimeStream)
+    senderPacketsDelay <- c(senderPacketsDelay, Delay)
+  }#Precalculates sender delay times
+  
+    while(length(binaryMessage) > 0){
+       
+      if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB < B){
+        Buffer <- c(Buffer, sourcePacketIndex)
+        CB <- length(Buffer)
+        sourcePacketIndex = sourcePacketIndex + 1
+      }#change sourceindex when reaches currenttime and places source packet into buffer
+      else{
+        print("OVERFLOW!!! %d"+ currentTime)
+        break
+      }#if CB >= B --> overflow 
+      
+       if(CB == i){
+         start= TRUE
+       }#if current buffer size is > i, sender can start sending packets
+      
+       if((start == TRUE) && (CB > 0) && (senderPackets[senderMessageIndex] == currentTime)){
+         CB = CB - 1 #buffer size decreases by 1
+         Buffer = Buffer[-1] #pop off from buffer 
+         senderMessageIndex = senderMessageIndex + 1 #update message index
+         binaryMessage = binaryMessage[-1]
+       }#Sender sends a packet
+       else if((CB == 0) && (senderPackets[senderMessageIndex] <= currentTime)){
+         print(paste("UNDERFLOW!!!" , currentTime))
+         break
+       }#if CB is empty, nothing to send so underflow 
+     
+        currentTime = currentTime + 0.00000001 #update current time
+    }
+      
+  
+
+
+
+
+
+
+
+
 
