@@ -214,13 +214,13 @@ underOrOver = function(m, i, d){
     generatePacketDelays = runif(m, 0, 1) #Random sequencce of packets with unif distribution 
   }
   
-  timePacketStreamE = 0
+  timePacketStream = 0
   timeLapse = 0
   for(index in 1:m){
-    timeLapse = timeLapse + generatePacketDelaysE[index]
-    timePacketStreamE <- c(timePacketStreamE, timeLapse)
+    timeLapse = timeLapse + generatePacketDelays[index]
+    timePacketStream <- c(timePacketStream, timeLapse)
   }
-  timePacketsStreamE = round(timePacketStreamE, digits = 3)
+  timePacketsStream = round(timePacketStream, digits = 3)
   
   #Simulation for exp dataset
   
@@ -259,7 +259,7 @@ underOrOver = function(m, i, d){
   senderPackets = round(senderPackets, digits = 3)
   #print(paste("PRE-LOOP BUFFER"), Buffer)
   
-  while(length(binaryMessage) > 0 && sourcePacketIndex < length(timePacketsStreamE)){
+  while(length(binaryMessage) > 0 && sourcePacketIndex < length(timePacketsStream)){
     
     if(currentTime >= timePacketStream[sourcePacketIndex] && CB < B){
       #print(paste("ADD T0 BUFFER", currentTime))
