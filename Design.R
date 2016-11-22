@@ -201,24 +201,18 @@ qqplot(overtDataDelay, semiRandomPacketsDelayB, plot.it = TRUE)
 lines(overtDataDelay,overtDataDelay)
 
 ###################### PART #3 Implementation ##########################
-
-mArr = c(16,32)
-
-i = c (2,6,10,14,18)
-
-
-#Sender vars
-#nextPacketTime = 0
-
-  
-underOrOver = function(m, i){
+underOrOver = function(m, i, d){
   #Buffer vars
   B = 20
   possible = c(0,1)
   binaryMessage = sample(possible, m , replace = TRUE) #Random message of size m
   
-  generatePacketDelaysE = rexp(m, rate = 1) #Random sequencce of packets with exp distribution 
-  generatePacketDelaysU = runif(m+1, 0, 1) #Random sequencce of packets with unif distribution 
+  if (d == 0){
+    generatePacketDelays = rexp(m, rate = 1) #Random sequencce of packets with exp distribution 
+  }
+  else if(d == 1){
+    generatePacketDelays = runif(m, 0, 1) #Random sequencce of packets with unif distribution 
+  }
   
   timePacketStreamE = 0
   timeLapse = 0
@@ -232,9 +226,9 @@ underOrOver = function(m, i){
   
   currentTime = 0
   
-  mE = median(generatePacketDelaysE) #median of exp dataset
-  minE = min(generatePacketDelaysE) #min of exp dataset
-  maxE = max(generatePacketDelaysE) #max of exp dataset
+  m   = median(generatePacketDelays) #median of exp dataset
+  min = min(generatePacketDelays) #min of exp dataset
+  max = max(generatePacketDelays) #max of exp dataset
   
   semiRandomPacketsDelay = numeric(m+1)
   semiRandomPackets = numeric(m+1)
@@ -253,10 +247,10 @@ underOrOver = function(m, i){
   
   for(bit in binaryMessage){
     if(bit == 0){
-      Delay = runif(1,minE,mE)
+      Delay = runif(1,min,m)
     }#if bit is 0
     else{
-      Delay = runif(1,mE,maxE)
+      Delay = runif(1,m,max)
     }#if bit is 1
     senderTimeStream = senderTimeStream + Delay
     senderPackets <- c(senderPackets, senderTimeStream)
@@ -267,13 +261,13 @@ underOrOver = function(m, i){
   
   while(length(binaryMessage) > 0 && sourcePacketIndex < length(timePacketsStreamE)){
     
-    if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB < B){
+    if(currentTime >= timePacketStream[sourcePacketIndex] && CB < B){
       #print(paste("ADD T0 BUFFER", currentTime))
       Buffer <- c(Buffer, sourcePacketIndex)
       CB <- length(Buffer)
       sourcePacketIndex = sourcePacketIndex + 1
     }#change sourceindex when reaches currenttime and places source packet into buffer
-    else if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB >= B) {
+    else if(currentTime >= timePacketStream[sourcePacketIndex] && CB >= B) {
       #print(paste("SKIP BUFFER", currentTime))
       numOverFlow = numOverFlow + 1
       #print(paste("OVERFLOW!!!", currentTime, numOverFlow))
@@ -304,34 +298,38 @@ underOrOver = function(m, i){
    return(c(numOverFlow, numUnderFlow))
 }
 
+
+distribution = c(0,1) #0 for exponential, 1 for uniform
 mArr = c(16,32)
 i = c (2,6,10,14,18)
 
 
-
-for (M in mArr){
-  print(paste("M: " , M))
-  for (I in i){
-    print(paste("    I: ", I))
-    over = 0
-    under = 0
-    for(s in 1:1000){
-      #print(s)
-      A = underOrOver(M,I)
-      over = over + A[1] 
-      under = under + A[2]
+for(D in distribution){
+  if(D == 0){
+    print(paste("Exponential :"))
+  }
+  if(D ==1) {
+    print(paste("Uniform:     "))
+  }
+  for (M in mArr){
+    print(paste("    M: " , M))
+    for (I in i){
+      print(paste("        I: ", I))
+      over = 0
+      under = 0
+      for(s in 1:1000){
+        #print(s)
+        A = underOrOver(M,I, D)
+        over = over + A[1] 
+        under = under + A[2]
+      }
+      over = over/1000
+      under = under/1000
+      print(paste("            overflow probability:  ", over))
+      print(paste("            underflow probability: ", under))
     }
-    over = over/1000
-    under = under/1000
-    print(paste("        overflow probability:  ", over))
-    print(paste("        underflow probability: ", under))
   }
 }
-
-
-#M <-scan(what = integer()) #16, 32
-#I <-scan(what = integer()) #2,6,10,14,18
-
 
   
   
