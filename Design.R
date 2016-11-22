@@ -203,19 +203,18 @@ lines(overtDataDelay,overtDataDelay)
 ###################### PART #3 Implementation ##########################
 
 mArr = c(16,32)
-possible = c(0,1)
 
-#Buffer vars
-B = 20
 i = c (2,6,10,14,18)
 
 
 #Sender vars
-nextPacketTime = 0
+#nextPacketTime = 0
 
-  m <-scan(what = integer()) #16, 32
-  i <-scan(what = integer()) #2,6,10,14,18
   
+underOrOver = function(m, i){
+  #Buffer vars
+  B = 20
+  possible = c(0,1)
   binaryMessage = sample(possible, m , replace = TRUE) #Random message of size m
   
   generatePacketDelaysE = rexp(m, rate = 1) #Random sequencce of packets with exp distribution 
@@ -229,7 +228,7 @@ nextPacketTime = 0
   }
   timePacketsStreamE = round(timePacketStreamE, digits = 3)
   
-#Simulation for exp dataset
+  #Simulation for exp dataset
   
   currentTime = 0
   
@@ -264,44 +263,77 @@ nextPacketTime = 0
     senderPacketsDelay <- c(senderPacketsDelay, Delay)
   }#Precalculates sender delay times
   senderPackets = round(senderPackets, digits = 3)
-  print(paste("PRE-LOOP BUFFER"), Buffer)
+  #print(paste("PRE-LOOP BUFFER"), Buffer)
   
-    while(length(binaryMessage) > 0 && sourcePacketIndex < length(timePacketsStreamE)){
-       
-      if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB < B){
-        print(paste("ADD T0 BUFFER", currentTime))
-        Buffer <- c(Buffer, sourcePacketIndex)
-        CB <- length(Buffer)
-        sourcePacketIndex = sourcePacketIndex + 1
-      }#change sourceindex when reaches currenttime and places source packet into buffer
-      else if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB >= B) {
-        print(paste("SKIP BUFFER", currentTime))
-        numOverFlow = numOverFlow + 1
-        print(paste("OVERFLOW!!!", currentTime, numOverFlow))
-        break
-      }#if CB >= B --> overflow 
-      
-       if(CB == i && start == FALSE){
-         print(paste("START!!", currentTime))
-         start= TRUE
-       }#if current buffer size is > i, sender can start sending packets
-      
-       if((start == TRUE) && (CB > 0) && (senderPackets[senderMessageIndex] <= currentTime)){
-         print(paste("POP FROM BUFFER!!", currentTime, senderPackets[senderMessageIndex], Buffer[1]))
-         CB = CB - 1 #buffer size decreases by 1
-         Buffer = Buffer[-1] #pop off from buffer 
-         senderMessageIndex = senderMessageIndex + 1 #update message index
-         binaryMessage = binaryMessage[-1]
-       }#Sender sends a packet
-       else if((start == TRUE) && (CB == 0) && (senderPackets[senderMessageIndex] <= currentTime)){
-         numUnderFlow = numUnderFlow + 1
-         print(paste("UNDERFLOW!!!" , currentTime))
-         #break
-       }#if CB is empty, nothing to send so underflow 
-     
-        currentTime = currentTime + 0.001 #update current time
+  while(length(binaryMessage) > 0 && sourcePacketIndex < length(timePacketsStreamE)){
+    
+    if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB < B){
+      #print(paste("ADD T0 BUFFER", currentTime))
+      Buffer <- c(Buffer, sourcePacketIndex)
+      CB <- length(Buffer)
+      sourcePacketIndex = sourcePacketIndex + 1
+    }#change sourceindex when reaches currenttime and places source packet into buffer
+    else if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB >= B) {
+      #print(paste("SKIP BUFFER", currentTime))
+      numOverFlow = numOverFlow + 1
+      #print(paste("OVERFLOW!!!", currentTime, numOverFlow))
+      break
+    }#if CB >= B --> overflow 
+    
+    if(CB == i && start == FALSE){
+      #print(paste("START!!", currentTime))
+      start= TRUE
+    }#if current buffer size is > i, sender can start sending packets
+    
+    if((start == TRUE) && (CB > 0) && (senderPackets[senderMessageIndex] <= currentTime)){
+      #print(paste("POP FROM BUFFER!!", currentTime, senderPackets[senderMessageIndex], Buffer[1]))
+      CB = CB - 1 #buffer size decreases by 1
+      Buffer = Buffer[-1] #pop off from buffer 
+      senderMessageIndex = senderMessageIndex + 1 #update message index
+      binaryMessage = binaryMessage[-1]
+    }#Sender sends a packet
+    else if((start == TRUE) && (CB == 0) && (senderPackets[senderMessageIndex] <= currentTime)){
+      numUnderFlow = numUnderFlow + 1
+      #print(paste("UNDERFLOW!!!" , currentTime))
+      break
+    }#if CB is empty, nothing to send so underflow 
+    
+    currentTime = currentTime + 0.001 #update current time
+  }
+  
+   return(c(numOverFlow, numUnderFlow))
+}
+
+mArr = c(16,32)
+i = c (2,6,10,14,18)
+
+
+
+for (M in mArr){
+  print(paste("M: " , M))
+  for (I in i){
+    print(paste("    I: ", I))
+    over = 0
+    under = 0
+    for(s in 1:1000){
+      #print(s)
+      A = underOrOver(M,I)
+      over = over + A[1] 
+      under = under + A[2]
     }
-      
+    over = over/1000
+    under = under/1000
+    print(paste("        overflow probability:  ", over))
+    print(paste("        underflow probability: ", under))
+  }
+}
+
+
+#M <-scan(what = integer()) #16, 32
+#I <-scan(what = integer()) #2,6,10,14,18
+
+
+  
   
 
 
