@@ -296,7 +296,7 @@ nextPacketTime = 0
        else if((start == TRUE) && (CB == 0) && (senderPackets[senderMessageIndex] <= currentTime)){
          numUnderFlow = numUnderFlow + 1
          print(paste("UNDERFLOW!!!" , currentTime))
-         break
+         #break
        }#if CB is empty, nothing to send so underflow 
      
         currentTime = currentTime + 0.001 #update current time
