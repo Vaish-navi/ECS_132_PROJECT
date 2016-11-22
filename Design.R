@@ -208,8 +208,7 @@ possible = c(0,1)
 #Buffer vars
 B = 20
 i = c (2,6,10,14,18)
-CB = 0
-Buffer = NULL
+
 
 #Sender vars
 nextPacketTime = 0
@@ -228,6 +227,7 @@ nextPacketTime = 0
     timeLapse = timeLapse + generatePacketDelaysE[index]
     timePacketStreamE <- c(timePacketStreamE, timeLapse)
   }
+  timePacketsStreamE = round(timePacketStreamE, digits = 3)
   
 #Simulation for exp dataset
   
@@ -246,6 +246,11 @@ nextPacketTime = 0
   start = FALSE
   sourcePacketIndex = 1
   senderMessageIndex = 1
+  numUnderFlow = 0 #numeric(1000)
+  numOverFlow = 0 #numeric(1000)
+  CB = 0
+  Buffer = NULL
+  
   
   for(bit in binaryMessage){
     if(bit == 0){
@@ -258,35 +263,43 @@ nextPacketTime = 0
     senderPackets <- c(senderPackets, senderTimeStream)
     senderPacketsDelay <- c(senderPacketsDelay, Delay)
   }#Precalculates sender delay times
+  senderPackets = round(senderPackets, digits = 3)
+  print(paste("PRE-LOOP BUFFER"), Buffer)
   
-    while(length(binaryMessage) > 0){
+    while(length(binaryMessage) > 0 && sourcePacketIndex < length(timePacketsStreamE)){
        
       if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB < B){
+        print(paste("ADD T0 BUFFER", currentTime))
         Buffer <- c(Buffer, sourcePacketIndex)
         CB <- length(Buffer)
         sourcePacketIndex = sourcePacketIndex + 1
       }#change sourceindex when reaches currenttime and places source packet into buffer
-      else{
-        print("OVERFLOW!!! %d"+ currentTime)
+      else if(currentTime >= timePacketStreamE[sourcePacketIndex] && CB >= B) {
+        print(paste("SKIP BUFFER", currentTime))
+        numOverFlow = numOverFlow + 1
+        print(paste("OVERFLOW!!!", currentTime, numOverFlow))
         break
       }#if CB >= B --> overflow 
       
-       if(CB == i){
+       if(CB == i && start == FALSE){
+         print(paste("START!!", currentTime))
          start= TRUE
        }#if current buffer size is > i, sender can start sending packets
       
-       if((start == TRUE) && (CB > 0) && (senderPackets[senderMessageIndex] == currentTime)){
+       if((start == TRUE) && (CB > 0) && (senderPackets[senderMessageIndex] <= currentTime)){
+         print(paste("POP FROM BUFFER!!", currentTime, senderPackets[senderMessageIndex], Buffer[1]))
          CB = CB - 1 #buffer size decreases by 1
          Buffer = Buffer[-1] #pop off from buffer 
          senderMessageIndex = senderMessageIndex + 1 #update message index
          binaryMessage = binaryMessage[-1]
        }#Sender sends a packet
-       else if((CB == 0) && (senderPackets[senderMessageIndex] <= currentTime)){
+       else if((start == TRUE) && (CB == 0) && (senderPackets[senderMessageIndex] <= currentTime)){
+         numUnderFlow = numUnderFlow + 1
          print(paste("UNDERFLOW!!!" , currentTime))
          break
        }#if CB is empty, nothing to send so underflow 
      
-        currentTime = currentTime + 0.00000001 #update current time
+        currentTime = currentTime + 0.001 #update current time
     }
       
   
